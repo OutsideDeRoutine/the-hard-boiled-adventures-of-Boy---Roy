@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: post-processing-mat
+  m_Shader: {fileID: 4800000, guid: 7b7ae28dc42b30c428fb168da6d43706, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _DisplacementTex:
+        m_Texture: {fileID: 2800000, guid: 6a34e465ea19eba4bae725ab101c96d7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 0, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AberrationDist: 1.5
+    - _BlueX: -0.004
+    - _BlueY: 0
+    - _ColorMask: 46
+    - _GreenX: 0
+    - _GreenY: 0
+    - _HSVRangeMax: 0.067
+    - _HSVRangeMin: 0
+    - _LSize: 100
+    - _LinesSize: 2
+    - _MiddleLine: 20
+    - _NoiseLines: 1
+    - _NoiseScale: 49.63
+    - _NoiseStrength: 0.00134
+    - _PixelX: 106.4
+    - _PixelY: -140.3
+    - _Pixels: 1
+    - _RedX: 0.004
+    - _RedY: 0
+    - _Side: -1
+    - _Stencil: 1.38
+    - _StencilComp: 10.37
+    - _StencilOp: 0.62
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 256.45
+    - _Strength: 0.033
+    - _Vel: -51.23
+    - _focusDistance: 0.1
+    - _focusRange: 1.16
+    m_Colors:
+    - _BackColor: {r: 0.3207547, g: 0.249644, b: 0.249644, a: 0.26666668}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
+    - _HSVAAdjust: {r: 0, g: 0.32, b: 0, a: 0}
