@@ -8,7 +8,7 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: post-processing-mat
   m_Shader: {fileID: 4800000, guid: 7b7ae28dc42b30c428fb168da6d43706, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: ETC1_EXTERNAL_ALPHA
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -38,14 +38,20 @@ Material:
     - _LSize: 100
     - _LinesSize: 2
     - _MiddleLine: 20
-    - _NoiseLines: 1
+    - _NoiseIntensity: 0.8
+    - _NoiseLines: 4
     - _NoiseScale: 49.63
+    - _NoiseSize: 0.04
     - _NoiseStrength: 0.00134
+    - _NoiseTraslation: 1.01
+    - _NoiseVel: 0.3
+    - _Offset: 1
     - _PixelX: 106.4
     - _PixelY: -140.3
     - _Pixels: 1
     - _RedX: 0.004
     - _RedY: 0
+    - _Scale: 1
     - _Side: -1
     - _Stencil: 1.38
     - _StencilComp: 10.37

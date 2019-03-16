@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Hidden/Pixelate"
+﻿Shader "Custom/ScreenEffect"
 {
 	Properties
 	{
@@ -17,7 +15,11 @@ Shader "Hidden/Pixelate"
 
 
 		[Header(Noise)]
-		_NoiseStrength("Noise Strength",Range(0, 0.005)) = 0.005
+		_NoiseSize("Noise Size",Range(0, 0.5)) = 0.005
+		_NoiseLines("Noise Lines",float) = 1
+	    _NoiseVel("Noise Velocity",float) = 1
+		_NoiseTraslation("Noise Traslation",float) = 1
+		_NoiseIntensity("Noise Intensity",float) = 1
 	}
 	SubShader
 	{
@@ -43,22 +45,14 @@ Shader "Hidden/Pixelate"
 				half4 pos:POSITION;
 				fixed4 sPos : TEXCOORD0;
 				float2 uv : TEXCOORD1;
+				float3 noise_uv : TEXCOORD2;
 			};
 
 
-			v2f vert (appdata v)
-			{
-				v2f o;
-				o.pos = UnityObjectToClipPos(v.vertex);
-				o.uv = v.uv;
-				o.sPos = ComputeScreenPos(o.pos);
-				return o;
-			}
-			
 			sampler2D _MainTex, _CameraDepthTexture;
 			float _LinesSize;
 			float _MiddleLine;
-			
+
 			float _AberrationDist;
 			sampler2D _DisplacementTex;
 			float _Strength;
@@ -66,7 +60,53 @@ Shader "Hidden/Pixelate"
 			float _focusDistance;
 			float _focusRange;
 
-			float _NoiseStrength;
+			float _NoiseSize;
+			float _NoiseVel;
+			float _NoiseLines;
+			float _NoiseIntensity;
+			float _NoiseTraslation;
+
+			v2f vert (appdata v)
+			{
+				v2f o;
+				o.pos = UnityObjectToClipPos(v.vertex);
+				o.uv = v.uv;
+				o.sPos = ComputeScreenPos(o.pos);
+				o.noise_uv = v.vertex.xyz / v.vertex.w;
+				o.noise_uv.x *= _NoiseTraslation;
+				return o;
+			}
+
+
+
+			float random(float p)
+			{
+				float x = (_Time.y * _NoiseVel) + (frac(p) * 2);
+				return (abs(sin(x / (0.6 / _NoiseLines))));
+			}
+
+
+			float hash(float n)
+			{
+				return frac(sin(n / _Time.y)*43758.5453);
+			}
+
+			float makeNoise(float3 x)
+			{
+				// The noise function returns a value in the range -1.0f -> 1.0f
+
+				float3 p = floor(x);
+				float3 f = frac(x);
+
+				f = f * f*(3.0 - 2.0*f);
+				float n = p.x + p.y*57.0 + 113.0*p.z;
+
+				return lerp(lerp(lerp(hash(n + 0.0), hash(n + 1.0), f.x),
+					lerp(hash(n + 57.0), hash(n + 58.0), f.x), f.y),
+					lerp(lerp(hash(n + 113.0), hash(n + 114.0), f.x),
+						lerp(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
+			}
+
 
 			float4 aberration3D(float2 uv) {
 				fixed4 col = fixed4(1, 1, 1, 1);
@@ -82,17 +122,18 @@ Shader "Hidden/Pixelate"
 			}
 
 
-			float random(float p)
-			{
-				return frac( abs(sin(p + _Time.y + frac(p))) );
-			}
-
-
 			float4 frag (v2f i) : SV_Target
 			{
 				float4 col = tex2D(_MainTex, i.uv);
 
-				float noise = _NoiseStrength==0? 0:((1+_NoiseStrength) * random(i.sPos.y));
+				float noise = _NoiseSize==0? 0:((1+_NoiseSize) * random(i.sPos.y));
+
+				if (floor(noise) > 0) {
+					col = tex2D(_MainTex, i.noise_uv) * _NoiseIntensity;
+					//col /= makeNoise(500000 * (normalize(i.noise_uv))); //ruido
+					//col.rgb = (1 - col); col.rgb *= col.a; //invertir colores
+					_AberrationDist *= _NoiseIntensity;
+				}
 
 				fixed p = i.sPos.y / i.sPos.w;
 
@@ -107,7 +148,7 @@ Shader "Hidden/Pixelate"
 				else {
 
 					if (difX < 0) {
-						if ((uint)(p* _ScreenParams.y / floor(_LinesSize + noise)) % 2 == 0) {
+						if ((uint)(p* _ScreenParams.y / floor(_LinesSize )) % 2 == 0) {
 							col = col.r * 0.3 + col.g * 0.59 + col.b * 0.11; //B&W
 							col /= 2;
 						}
@@ -116,8 +157,7 @@ Shader "Hidden/Pixelate"
 						}
 					}
 					else {
-
-						if ((uint)(p* _ScreenParams.y / floor(_LinesSize + noise)) % 2 != 0) {
+						if ((uint)(p* _ScreenParams.y / floor(_LinesSize )) % 2 != 0) {
 							col = col.r * 0.3 + col.g * 0.59 + col.b * 0.11; //B&W
 							col /= 2 ;
 						}
@@ -126,10 +166,8 @@ Shader "Hidden/Pixelate"
 						}
 					}
 				}	
-				
 
-				return col + 0.05* floor(noise);
-				
+				return col;
 			}
 			ENDCG
 		}
@@ -176,8 +214,6 @@ Shader "Hidden/Pixelate"
 			sampler2D _DisplacementTex;
 			float _Strength;
 
-
-
 			float4 frag(v2f i) : SV_Target
 			{
 				#if UNITY_UV_STARTS_AT_TOP
@@ -190,7 +226,6 @@ Shader "Hidden/Pixelate"
 				half2 n = tex2D(_DisplacementTex, i.uv);
 				half2 d = n * 2 - 1;
 				i.uv += d * _Strength;
-				i.uv = saturate(i.uv);
 
 
 				float4 col = tex2D(_GrabTexture, i.uv);
