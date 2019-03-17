@@ -18,8 +18,8 @@
 		_NoiseSize("Noise Size",Range(0, 0.5)) = 0.005
 		_NoiseLines("Noise Lines",float) = 1
 	    _NoiseVel("Noise Velocity",float) = 1
-		_NoiseTraslation("Noise Traslation",float) = 1
 		_NoiseIntensity("Noise Intensity",float) = 1
+
 	}
 	SubShader
 	{
@@ -45,7 +45,6 @@
 				half4 pos:POSITION;
 				fixed4 sPos : TEXCOORD0;
 				float2 uv : TEXCOORD1;
-				float3 noise_uv : TEXCOORD2;
 			};
 
 
@@ -64,7 +63,7 @@
 			float _NoiseVel;
 			float _NoiseLines;
 			float _NoiseIntensity;
-			float _NoiseTraslation;
+
 
 			v2f vert (appdata v)
 			{
@@ -72,8 +71,6 @@
 				o.pos = UnityObjectToClipPos(v.vertex);
 				o.uv = v.uv;
 				o.sPos = ComputeScreenPos(o.pos);
-				o.noise_uv = v.vertex.xyz / v.vertex.w;
-				o.noise_uv.x *= _NoiseTraslation;
 				return o;
 			}
 
@@ -112,10 +109,10 @@
 				fixed4 col = fixed4(1, 1, 1, 1);
 
 				float2 red_uv = uv + float2(_AberrationDist / _ScreenParams.x, 0);
-				float2 blue_uv = uv + float2(_AberrationDist / _ScreenParams.x, 0);
+				float2 blue_uv = uv + float2(-_AberrationDist / _ScreenParams.x, 0);
 
 				col.r = tex2D(_MainTex, red_uv).r;
-				col.g = tex2D(_MainTex, uv).g;
+				col.g = tex2D(_MainTex, blue_uv).g;
 				col.b = tex2D(_MainTex, blue_uv).b;
 
 				return col;
@@ -128,17 +125,21 @@
 
 				float noise = _NoiseSize==0? 0:((1+_NoiseSize) * random(i.sPos.y));
 
+				float difX = _ScreenParams.x - i.pos.x;
+				float difY = _ScreenParams.y - i.pos.y;
+
 				if (floor(noise) > 0) {
-					col = tex2D(_MainTex, i.noise_uv) * _NoiseIntensity;
-					//col /= makeNoise(500000 * (normalize(i.noise_uv))); //ruido
+					//col /= makeNoise(500000 * (normalize(float3(i.uv.xy,1)))); //ruido
 					//col.rgb = (1 - col); col.rgb *= col.a; //invertir colores
+
+					col /= _NoiseIntensity;
 					_AberrationDist *= _NoiseIntensity;
 				}
 
+
 				fixed p = i.sPos.y / i.sPos.w;
 
-				float difX = _ScreenParams.x - i.pos.x;
-				float difY = _ScreenParams.y - i.pos.y;
+				
 				if (abs(difX) < _ScreenParams.x/_MiddleLine || i.pos.x < _ScreenParams.x / _MiddleLine || i.pos.x -_ScreenParams.x > _ScreenParams.x - (_ScreenParams.x / _MiddleLine) ) {
 					return  float4(0, 0, 0, 0);
 				}
@@ -148,18 +149,18 @@
 				else {
 
 					if (difX < 0) {
-						if ((uint)(p* _ScreenParams.y / floor(_LinesSize )) % 2 == 0) {
+						if ((uint)(p* _ScreenParams.y / (_LinesSize)+_Time*100) % 2 == 0) {
 							col = col.r * 0.3 + col.g * 0.59 + col.b * 0.11; //B&W
-							col /= 2;
+							col /= 1.5;
 						}
 						else {
 							col = aberration3D(i.uv);
 						}
 					}
 					else {
-						if ((uint)(p* _ScreenParams.y / floor(_LinesSize )) % 2 != 0) {
+						if ((uint)(p* _ScreenParams.y / (_LinesSize)+_Time * 100) % 2 != 0) {
 							col = col.r * 0.3 + col.g * 0.59 + col.b * 0.11; //B&W
-							col /= 2 ;
+							col /= 1.5 ;
 						}
 						else {
 							col = aberration3D(i.uv);

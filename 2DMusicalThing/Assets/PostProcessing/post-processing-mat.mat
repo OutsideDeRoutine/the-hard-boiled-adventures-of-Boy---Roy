@@ -27,7 +27,7 @@ Material:
         m_Scale: {x: 0, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _AberrationDist: 1.5
+    - _AberrationDist: 1.1
     - _BlueX: -0.004
     - _BlueY: 0
     - _ColorMask: 46
@@ -38,13 +38,13 @@ Material:
     - _LSize: 100
     - _LinesSize: 2
     - _MiddleLine: 20
-    - _NoiseIntensity: 0.8
-    - _NoiseLines: 4
+    - _NoiseIntensity: 1.5
+    - _NoiseLines: 3.2
     - _NoiseScale: 49.63
-    - _NoiseSize: 0.04
+    - _NoiseSize: 0.197
     - _NoiseStrength: 0.00134
-    - _NoiseTraslation: 1.01
-    - _NoiseVel: 0.3
+    - _NoiseTraslation: 0.97
+    - _NoiseVel: 0.2
     - _Offset: 1
     - _PixelX: 106.4
     - _PixelY: -140.3
@@ -66,3 +66,4 @@ Material:
     - _BackColor: {r: 0.3207547, g: 0.249644, b: 0.249644, a: 0.26666668}
     - _Color: {r: 0, g: 0, b: 0, a: 1}
     - _HSVAAdjust: {r: 0, g: 0.32, b: 0, a: 0}
+    - _ScaleCenter: {r: 0.5, g: 0.2, b: 0, a: 0}
