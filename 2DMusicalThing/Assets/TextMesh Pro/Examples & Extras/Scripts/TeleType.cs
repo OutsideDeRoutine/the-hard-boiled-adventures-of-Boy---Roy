@@ -1,52 +1,57 @@
 using UnityEngine;
 using System.Collections;
+using TMPro;
+using System;
 
-
-namespace TMPro.Examples
-{
-    
-    public class TeleType : MonoBehaviour
+public class TeleType : MonoBehaviour
     {
+    //SACAR DE AQUI CUANDO YA NO HAGA FALTA
+    public bool update=true;
 
-
-        //[Range(0, 100)]
-        //public int RevealSpeed = 50;
-
-        public string label01 = "";
-        public string label02 = "";
-
+        public string text = "";
 
         private TMP_Text m_textMeshPro;
+
+
+        private bool writing;
 
 
         void Awake()
         {
             // Get Reference to TextMeshPro Component
             m_textMeshPro = GetComponent<TMP_Text>();
-            m_textMeshPro.text = label01;
             m_textMeshPro.enableWordWrapping = true;
             m_textMeshPro.alignment = TextAlignmentOptions.Top;
-
-
-
-            //if (GetComponentInParent(typeof(Canvas)) as Canvas == null)
-            //{
-            //    GameObject canvas = new GameObject("Canvas", typeof(Canvas));
-            //    gameObject.transform.SetParent(canvas.transform);
-            //    canvas.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-
-            //    // Set RectTransform Size
-            //    gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(500, 300);
-            //    m_textMeshPro.fontSize = 48;
-            //}
-
 
         }
 
 
-        IEnumerator Start()
+    //SACAR DE AQUI CUANDO YA NO HAGA FALTA
+    void Update()
+    {
+            
+        if (update)
         {
+            if (writing) StopCoroutine("Write");
+            StartCoroutine("Write");
+            update = false;
+        }
 
+    }
+
+        public void WriteMeThis(string text)
+        {
+            this.text = text;
+
+            if (writing) StopCoroutine("Write");
+            StartCoroutine("Write");
+        }
+
+
+        IEnumerator Write()
+        {
+            m_textMeshPro.text = text;
+            writing = true;
             // Force and update of the mesh to get valid information.
             m_textMeshPro.ForceMeshUpdate();
 
@@ -55,29 +60,17 @@ namespace TMPro.Examples
             int counter = 0;
             int visibleCount = 0;
 
-            while (true)
+            while (visibleCount < totalVisibleCharacters)
             {
                 visibleCount = counter % (totalVisibleCharacters + 1);
 
                 m_textMeshPro.maxVisibleCharacters = visibleCount; // How many characters should TextMeshPro display?
 
-                // Once the last character has been revealed, wait 1.0 second and start over.
-                if (visibleCount >= totalVisibleCharacters)
-                {
-                    yield return new WaitForSeconds(1.0f);
-                    m_textMeshPro.text = label02;
-                    yield return new WaitForSeconds(1.0f);
-                    m_textMeshPro.text = label01;
-                    yield return new WaitForSeconds(1.0f);
-                }
-
                 counter += 1;
 
                 yield return new WaitForSeconds(0.05f);
             }
-
-            //Debug.Log("Done revealing the text.");
+            writing = false;
         }
 
     }
-}
