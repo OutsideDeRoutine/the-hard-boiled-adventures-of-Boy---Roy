@@ -24,9 +24,12 @@ public class Move : MonoBehaviour {
     private float h;
     // Update is called once per frame
     void FixedUpdate () {
-        v = Input.GetAxis(verticalInput);
-        h = Input.GetAxis(horizontalInput);
-
+        if (!customMove)
+        {
+            v = Input.GetAxis(verticalInput);
+            h = Input.GetAxis(horizontalInput);
+        }
+        customMove = false;
 
         //ANIMATION
         if (v != 0 || h != 0)
@@ -84,5 +87,15 @@ public class Move : MonoBehaviour {
         Vector3 move = this.transform.forward * v + this.transform.right * h;
         move = move.normalized * Time.deltaTime * Speed + Vector3.up * gravity;
         _controller.Move(move);
+
+        
+    }
+
+    private bool customMove;
+    public void MakeMyMove(float h, float v)
+    {
+        this.h = h;
+        this.v = v;
+        customMove = true;
     }
 }
